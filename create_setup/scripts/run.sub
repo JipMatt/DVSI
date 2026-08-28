@@ -1,0 +1,15 @@
+#!/bin/sh
+#
+#SBATCH --job-name=IRS48_gas_2D_Z0425_eta05_a3_ts35e1_hg4x5
+#SBATCH --partition=compute
+#SBATCH --time=119:59:59 #max 5 days HH:MM:SS
+#SBATCH --ntasks=128 #max 48 nodes
+#SBATCH --cpus-per-task=1
+#SBATCH --mem-per-cpu=1G
+#SBATCH --account=research-ae-spe
+
+module load 2024r1
+module load openmpi
+srun ./fargo3d setups/IRS48_gas_2D_Z0425_eta05_a3_ts35e1_hg4x5/IRS48_gas_2D_Z0425_eta05_a3_ts35e1_hg4x5.par
+#for restarting a job
+#srun ./fargo3d -S n setups/IRS48_gas_2D_Z0425_eta05_a3_ts35e1_hg4x5/IRS48_gas_2D_Z0425_eta05_a3_ts35e1_hg4x5.par #n last saved timeframe]
