@@ -6,7 +6,7 @@ from scipy.special import roots_legendre
 from scipy.interpolate import BarycentricInterpolator
 from scipy.optimize import curve_fit 
 
-dir = os.path.dirname(os.path.dirname(__file__))+'/plotting/code/'
+dir = os.path.dirname(os.path.dirname(__file__))+''
 sys.path.append(dir)
 
 from psi_stratified.equilibrium import Equilibrium
@@ -56,8 +56,9 @@ def sigma(x, taumin=1e-3, taumax=1e-1):
     '''MRN size distribution, normalized to unity'''
     return 0.5/(np.sqrt(x)*(np.sqrt(taumax) - np.sqrt(taumin)))
 
-def anytical(ndust=1, tau=[1e-5],  hg=4, metallicity=.01, eta=0.05, alpha_viscosity=1e-6, n_coll=100):
-    z = np.linspace(-hg, hg, int(2*hg*1024))
+def anytical(ndust=1, tau=[1e-5],  hg=4, metallicity=.01, eta=0.05, alpha_viscosity=1e-6, n_coll=100, z=None):
+    if z is None:
+        z = np.linspace(-hg, hg, int(2*hg*1024))
     stokes_density = StokesDensity(tau)
 
     equilibrium = Equilibrium(metallicity, stokes_density, ndust, alpha_viscosity)
