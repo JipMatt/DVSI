@@ -479,3 +479,10 @@ def max_amplitude(frame, pf, coord, order=10,  v=np.array([0,0,0]), shear=0):
 
 
     return max_amp
+
+def h_tracer(rho_z, z, dz):
+    z2 = (
+        np.sum(rho_z * z**2 * dz, axis=1)
+        / np.sum(rho_z * dz, axis=1))**0.5
+
+    return z2
