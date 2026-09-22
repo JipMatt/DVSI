@@ -872,12 +872,20 @@ def multi_heatmaps(
         ax.xaxis.set_major_formatter(FormatStrFormatter(x_tick_fmt))
         ax.yaxis.set_major_formatter(FormatStrFormatter(y_tick_fmt))
 
-    def add_panel_text(ax, text):
+    def add_panel_text(ax, text, i):
+
         if text is None or text == "":
             return
-        kw = dict(panel_text_kwargs)
+
+        kw = panel_text_kwargs_list[i].copy()
+
+        # Extract position, with defaults
+        x = kw.pop("x", 0.02)
+        y = kw.pop("y", 0.98)
+
         kw["transform"] = ax.transAxes
-        ax.text(0.02, 0.98, text, **kw)
+
+        ax.text(x, y, text, **kw)
 
     def _plot_span(coord, n_cells, name):
         """
@@ -956,28 +964,65 @@ def multi_heatmaps(
     # ------------------------------------------------------------------
     if panel_text is None:
         panel_texts = [None] * N
+
     elif isinstance(panel_text, str):
         panel_texts = [panel_text] * N
+
     else:
         panel_texts = list(panel_text)
+
         if len(panel_texts) != N:
             raise ValueError(
-                f"If `panel_text` is a list/tuple, it must have length N={N}; "
+                f"`panel_text` must have length N={N}; "
                 f"got {len(panel_texts)}."
             )
 
+    # Default text styling
+    default_panel_text_kwargs = dict(
+        color="white",
+        ha="left",
+        va="top",
+        bbox=dict(
+            boxstyle="round,pad=0.15",
+            facecolor="black",
+            alpha=0.35,
+            linewidth=0.0,
+        ),
+    )
+
+    # Broadcast kwargs to individual panels
     if panel_text_kwargs is None:
-        panel_text_kwargs = dict(
-            color="white",
-            ha="left",
-            va="top",
-            transform=None,
-            bbox=dict(
-                boxstyle="round,pad=0.15",
-                facecolor="black",
-                alpha=0.35,
-                linewidth=0.0,
-            ),
+
+        panel_text_kwargs_list = [
+            default_panel_text_kwargs.copy()
+            for _ in range(N)
+        ]
+
+    elif isinstance(panel_text_kwargs, dict):
+
+        panel_text_kwargs_list = [
+            panel_text_kwargs.copy()
+            for _ in range(N)
+        ]
+
+    elif isinstance(panel_text_kwargs, (list, tuple)):
+
+        if len(panel_text_kwargs) != N:
+            raise ValueError(
+                f"`panel_text_kwargs` must have length N={N}; "
+                f"got {len(panel_text_kwargs)}."
+            )
+
+        panel_text_kwargs_list = [
+            default_panel_text_kwargs.copy() if kw is None
+            else dict(kw)
+            for kw in panel_text_kwargs
+        ]
+
+    else:
+        raise TypeError(
+            "`panel_text_kwargs` must be None, a dictionary, "
+            "or a list/tuple of dictionaries."
         )
 
     # ------------------------------------------------------------------
@@ -1227,7 +1272,7 @@ def multi_heatmaps(
             # axes. It simply enforces one rendered unit in x == one in z.
             ax.set_aspect("equal", adjustable="box")
 
-            add_panel_text(ax, panel_texts[i])
+            add_panel_text(ax, panel_texts[i], i)
             axes.append(ax)
             ims.append(im)
 
@@ -1529,7 +1574,7 @@ def multi_heatmaps(
         )
         ax.set_aspect("equal")
 
-        add_panel_text(ax, panel_texts[idx])
+        add_panel_text(ax, panel_texts[idx], idx)
 
         axes.append(ax)
         ims.append(im)
@@ -1565,7 +1610,7 @@ def multi_heatmaps(
             shading="auto",
         )
         ax.set_aspect("equal")
-        add_panel_text(ax, panel_texts[idx])
+        add_panel_text(ax, panel_texts[idx], idx)
 
         axes.append(ax)
         ims.append(im)
